@@ -36,10 +36,9 @@ Separate workflows for error handling and owner notifications
 - HTML-safe escaping of user input in notifications
 
 ### Files
-- messenger-ai-chatbot/workflow.json — main bot
-- messenger-ai-chatbot/error-handler.json — failure alerts
-- messenger-ai-chatbot/owner-notifications.json — order/booking/escalation pings
-
+- [workflow.json](messenger-ai-chatbot/workflow.json) — main bot
+- [error-handler.json](messenger-ai-chatbot/error-handler.json) — failure alerts
+- [owner-notifications.json](messenger-ai-chatbot/owner-notifications.json) — order/booking/escalation pings
 Note: workflow JSONs are sanitized — credentials, IDs, and personal data replaced with placeholders.
 
 ---
