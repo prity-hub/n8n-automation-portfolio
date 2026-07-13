@@ -1,0 +1,745 @@
+{
+  "name": "Facebook Auto Reply Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "multipleMethods": true,
+        "path": "Facebook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2112,
+        -240
+      ],
+      "id": "88243f33-bd27-4da0-a733-25790f83b8cd",
+      "name": "Webhook",
+      "webhookId": "afdc63a1-aa67-4dba-8c31-e4a64ebf64b6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7d31c9f6-dece-4df9-901f-acc46a32c6a8",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8b598089-fc99-4775-9401-c93eebba3827",
+              "leftValue": "={{ $json.body.entry[0].messaging[0].message.is_echo }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        -1616,
+        -48
+      ],
+      "id": "ed010600-604d-429e-ba7f-edddd30b1029",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Filter').item.json.body.entry[0].messaging[0].message.text }}",
+        "options": {
+          "systemMessage": "=You are the AI customer assistant for \"The Lawn Archive\", a Facebook business page selling authentic Pakistani imported dresses and customized dress solutions.\n\nFORMATTING RULES (strict, never break these):\n- Plain text only. NEVER use markdown or decoration symbols: no asterisks (*), no underscores (_), no hashtags (#), no bullet symbols (•).\n- Facebook Messenger does not render formatting. Any symbol you add will appear as ugly raw characters to the customer.\n- No emojis.\n- For structured details, write each item on its own line as \"Label: value\".\n- Keep replies short. 2 to 5 sentences for normal questions. Customers are on mobile.\n\nLANGUAGE POLICY:\n- Start in English.\n- If the customer writes in Bangla, reply in Bangla. If they mix languages, follow the language they used most recently.\n- In both languages: professional, warm, natural. Like an experienced shop assistant, not a robot. No exaggerated praise, no over-apologizing.\n\nCONVERSATION CONTINUITY:\n- Always check the conversation history before replying. If the customer has already told you something (name, product interest, address, an order or booking in progress), NEVER ask for it again. Use it naturally.\n- If the customer returns mid-conversation, continue where you left off. Do not repeat the welcome message if you have already greeted them in this conversation.\n- If a customer refers to a past order or conversation that is NOT in your conversation history, do not pretend to remember it. Politely ask for their order info or phone number so the team can check. Never invent past order details.\n\nPRODUCT QUESTIONS:\n- Answer only from the products and services sheet using the products tool. Keep answers brief and factual.\n- If the sheet does not contain the answer, say you will check with the team and ask for their phone number. Never invent prices, stock, or delivery times.\n\nORDER PROTOCOL:\nWhen a customer wants to order, collect these, then confirm:\n- Name\n- Product name\n- Quantity\n- Delivery address\n- Phone number\n- Preferred delivery date and time (Bangladesh time)\nAfter collecting all details, save the order using the order tool, then send a confirmation that repeats the details in \"Label: value\" lines and tells them the shop will contact them.\n\nMEETING BOOKING PROTOCOL:\nWhen a customer wants to book a meeting or appointment:\n1. Collect: name, requested service, email, preferred date and time (Bangladesh time).\n2. You MUST call the Create event tool with a suitable title, start_datetime and end_datetime (assume 30 minutes if not specified). Never claim a booking is done without calling the tool.\n3. Save the booking details using the booking tool.\n4. Do not send any calendar link. Confirm in plain lines: name, email, date and time.\nAlways use Bangladesh time zone for all orders and bookings.\n\nESCALATION AND SILENCE PROTOCOL:\nEscalate to a human (do not attempt to answer) when:\n- You are not confident you understand the question, or it is unrelated to products, orders, or bookings\n- The customer uses slang, abusive language, or is joking/testing the bot\n- The customer is angry, threatens complaints, or asks about refunds, discounts, or damaged products\n- The customer asks the same thing twice because your answer did not satisfy them\n\nWhen escalating:\n- You MUST first call the Report Escalation tool with the customer's message and the reason, THEN send the handoff message.\n- Send exactly ONE short handoff message:\n  English: \"Let me connect you with our team. Someone will reply to you shortly.\"\n  Bangla: \"আপনার বিষয়টি আমাদের টিমের একজন দেখবেন। শীঘ্রই আপনাকে রিপ্লাই দেওয়া হবে।\"\n- After the handoff message, if the customer keeps sending irrelevant or abusive messages, reply only with a brief polite line like \"আমাদের টিম শীঘ্রই যোগাযোগ করবে।\" Do not get pulled into arguments, jokes, or off-topic chat. Never insult back, never use slang yourself.\n- Do not attempt to answer the original question after escalating.\n\nEXAMPLE - good order confirmation (English):\nThank you! Your order is confirmed.\nName: Prity\nProduct: Luxury Lawn\nQuantity: 2\nAddress: Aftabnogor, Dhaka\nPhone: 01XXXXXXXXX\nOur team will contact you shortly to arrange delivery.\n\nEXAMPLE - good order confirmation (Bangla):\nধন্যবাদ! আপনার অর্ডারটি নিশ্চিত করা হয়েছে।\nনাম: প্রীতি\nপণ্য: লাক্সারি লন\nপরিমাণ: ২\nঠিকানা: আফতাবনগর, ঢাকা\nফোন: 01XXXXXXXXX\nডেলিভারির বিষয়ে আমাদের টিম শীঘ্রই আপনার সাথে যোগাযোগ করবে।\n\nEXAMPLE - good product reply (Bangla):\nজি, লাক্সারি লন কালেকশনটি স্টকে আছে। দাম ৩,৫০০ টাকা। আপনি কি অর্ডার করতে চান?\n\nCurrent date and time: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -800,
+        -240
+      ],
+      "id": "65aa771c-a3f4-4d81-8ac7-4a54f6dd153e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -1264,
+        144
+      ],
+      "id": "a4117781-b146-41c8-b48d-9fd556d5606b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tlDAaRgkelyZqkOT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Filter').item.json.body.entry[0].messaging[0].sender.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -1120,
+        144
+      ],
+      "id": "d7c4d775-0229-45b0-b752-7521339567ce",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "The Lawn Archive database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "products & Services",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -960,
+        128
+      ],
+      "id": "46a958d2-0721-4ebb-a660-e63fe469c77e",
+      "name": "Get products & services data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7hDMPPcAiazzsxQI",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "The Lawn Archive database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 863976769,
+          "mode": "list",
+          "cachedResultName": "Booking details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=863976769"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "User Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('User_Name', ``, 'string') }}",
+            "Requested Service": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Requested_Service', ``, 'string') }}",
+            "Contact_Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Contact_Email', ``, 'string') }}",
+            "Booking_Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Booking_Status', ``, 'string') }}",
+            "Created_At": "={{ $now.format('yyyy-MM-dd hh:mm') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "User Name",
+              "displayName": "User Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Requested Service",
+              "displayName": "Requested Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Contact_Email",
+              "displayName": "Contact_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Booking_Status",
+              "displayName": "Booking_Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created_At",
+              "displayName": "Created_At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -784,
+        144
+      ],
+      "id": "a474eef3-516e-4e54-8e6b-3e75b9cd97ae",
+      "name": "Append Booking",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7hDMPPcAiazzsxQI",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=Use this tool to create a Google Calendar meeting.\nRequired for booking, appointments, scheduling, reservations.\nInputs needed:\ntitle, start_datetime, end_datetime.",
+        "calendar": {
+          "__rl": true,
+          "value": "owner@example.com",
+          "mode": "list",
+          "cachedResultName": "owner@example.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        112
+      ],
+      "id": "1f13c428-5b25-4e0e-9532-a6966ee004f7",
+      "name": "Create event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "zTQT79BhKP766qdT",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1904,
+        -48
+      ],
+      "id": "d55250de-894e-47e0-8401-bb47e319c954",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v25.0/{{ $('Filter').item.json.body.entry[0].id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"messaging_type\": \"RESPONSE\",\n  \"message\": {\n    \"text\": {{ JSON.stringify($json.output) }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -416,
+        -256
+      ],
+      "id": "f6722eb9-c050-4496-8093-955213b35e34",
+      "name": "Reply to customer",
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "IbZHEVXggel0gd9X",
+          "name": "FB page token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query.hub_challenge }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -1888,
+        -432
+      ],
+      "id": "ae80cc19-d96b-45d2-b14b-40773a2fbe91",
+      "name": "Verify Webhook (hub challenge)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v25.0/{{ $('Filter').item.json.body.entry[0].id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": {\n    \"id\": \"{{ $('Filter').item.json.body.entry[0].messaging[0].sender.id }}\"\n  },\n  \"sender_action\": \"typing_on\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1392,
+        -32
+      ],
+      "id": "78923a23-a4d2-4b96-865b-39a58ead3236",
+      "name": "Typing Indicator1",
+      "credentials": {YOUR_SHEET_ID
+        "httpQueryAuth": {
+          "id": "IbZHEVXggel0gd9X",
+          "name": "FB page token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to report an escalation when a customer needs a human: confused queries, slang or abuse, anger, refunds, or anything you cannot answer. Inputs: customer message and reason.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "The Lawn Archive database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1331666212,
+          "mode": "list",
+          "cachedResultName": "Escalation Sheets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=1331666212"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sender ID": "={{ $('Filter').item.json.body.entry[0].messaging[0].sender.id }}",
+            "Customer Message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_Message', ``, 'string') }}",
+            "Reason": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Reason', ``, 'string') }}",
+            "Time": "={{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Sender ID",
+              "displayName": "Sender ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Message",
+              "displayName": "Customer Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -528,
+        112
+      ],
+      "id": "b0d2ae47-e003-42eb-a7d5-9801d0babb16",
+      "name": "Report Escalation",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7hDMPPcAiazzsxQI",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "The Lawn Archive database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1279852989,
+          "mode": "list",
+          "cachedResultName": "Order details",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=1279852989"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Phone_Number": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Phone_Number', ``, 'string') }}",
+            "Address": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Address', ``, 'string') }}",
+            "Product Quantity": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_Quantity', ``, 'string') }}",
+            "Product Size": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_Size', ``, 'string') }}",
+            "Product Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Product_Name', ``, 'string') }}",
+            "User Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('User_Name', ``, 'string') }}",
+            "Date and Time": "={{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "User Name",
+              "displayName": "User Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Product Name",
+              "displayName": "Product Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Product Size",
+              "displayName": "Product Size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Product Quantity",
+              "displayName": "Product Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone_Number",
+              "displayName": "Phone_Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date and Time",
+              "displayName": "Date and Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -640,
+        96
+      ],
+      "id": "b39a2337-36ea-47c4-b34e-c0ae68b1e103",
+      "name": "Append Order",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7hDMPPcAiazzsxQI",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Verify Webhook (hub challenge)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Typing Indicator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply to customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get products & services data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Booking": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Typing Indicator1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Escalation": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "dqC1wCq4czd3SPhT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "437097e2-ef19-4201-90af-13f359c06283",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b17a698d2418e3d29074bfe03646c773e6b780d1ff851e026bcc2f589b000cbf"
+  },
+  "id": "lwuKThpLaFou1pD8",
+  "tags": []
+}
