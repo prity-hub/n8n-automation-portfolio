@@ -1,0 +1,328 @@
+{
+  "name": "Project 1 — Smart Lead Capture System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-captrure",
+        "options": {
+          "responseCode": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -592,
+        -272
+      ],
+      "id": "48775754-4259-4e73-863d-58b043dfd493",
+      "name": "Webhook",
+      "webhookId": "322b9873-d986-4df1-a3f2-df3eb829f18a"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID
+",
+          "mode": "list",
+          "cachedResultName": "Lead Capture — Portfolio Project",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toLocaleString('en-BD', {timeZone:'Asia/Dhaka'}) }}",
+            "Full Name": "={{ $json.body.full_name }}",
+            "Email": "={{ $json.body.email }}",
+            "Phone": "={{ $json.body.phone }}",
+            "Service Interested In": "={{ $json.body.service }}",
+            "Message": "={{ $json.body.message }}",
+            "Status": "New Lead"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service Interested In",
+              "displayName": "Service Interested In",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -368,
+        -336
+      ],
+      "id": "9b097bd2-e1c6-41f9-8a33-0b06505cefd6",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "7hDMPPcAiazzsxQI",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "6522386531",
+        "text": "=🔔 New Lead Alert!  👤 Name: {{ $('Webhook').item.json.body.full_name }} 📧 Email: {{ $('Webhook').item.json.body.email }} 📞 Phone: {{ $('Webhook').item.json.body.phone }} 🛠 Service: {{ $('Webhook').item.json.body.service }} 💬 Message: {{ $('Webhook').item.json.body.message }}  ✅ Saved to Google Sheets automatically!",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        -224
+      ],
+      "id": "1dfd1cff-6105-48fe-869d-50b77ca4f38e",
+      "name": "Send a text message",
+      "webhookId": "ac97ac2a-9644-4b31-a1bf-7e955da4d3e6",
+      "credentials": {
+        "telegramApi": {
+          "id": "LbzlhjkmOnUMcKo7",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/YOUR_TWILIO_ACCOUNT_SID/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:+14155238886"
+            },
+            {
+              "name": "To",
+              "value": "whatsapp:YOUR_PHONE"
+            },
+            {
+              "name": "Body",
+              "value": "= 🔔 New Lead! {{ $('Webhook').item.json.body.full_name }} - {{ $('Webhook').item.json.body.service }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        464,
+        -320
+      ],
+      "id": "145ce014-4e4b-4e4f-88a3-70428b85bc1c",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Jz93B4yRYzNuakyT",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.email }}\n",
+        "subject": "Thank you for contacting us — Dhaka Finance Advisors",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n  \n  <h2 style=\"color: #2c3e50;\">Thank You for Contacting Us!</h2>\n  \n  <p>Dear <strong>{{ $('Webhook').item.json.body.full_name }}</strong>,</p>\n  \n  <p>Thank you for reaching out to <strong>Dhaka Finance Advisors</strong>. \n  We have received your inquiry and will get back to you within \n  <strong>24 hours</strong>.</p>\n  \n  <div style=\"background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;\">\n    <h3 style=\"margin-top: 0;\">Your Inquiry Summary:</h3>\n    <p><strong>Service:</strong> {{ $('Webhook').item.json.body.service }}</p>\n    <p><strong>Message:</strong> {{ $('Webhook').item.json.body.message }}</p>\n  </div>\n  \n  <p>In the meantime, feel free to reach us at:</p>\n  <p>📧 info@dhakafinance.com<br>\n     📞 +880 1700-000000<br>\n     🕐 Office hours: Sat–Thu, 9AM–6PM</p>\n  \n  <p>Best regards,<br>\n  <strong>Prity</strong><br>\n  Dhaka Finance Advisors</p>\n  \n</div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        -240
+      ],
+      "id": "b2390c19-25fc-4ee2-b566-6fe2a86cecb8",
+      "name": "Send a message to client",
+      "webhookId": "120b7c05-898d-4d07-a19f-c884de559649",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BchoZV8Iohh7fUXj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "owner@example.com",
+        "subject": "=🔔 New Lead: {{ $('Webhook').item.json.body.full_name }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px;\">    <h2 style=\"color: #e74c3c;\">🔔 New Lead Alert!</h2>    <div style=\"background:#fff3cd; padding:15px; border-radius:8px;\">     <p><strong>Name:</strong> {{ $('Webhook').item.json.body.full_name }}</p>     <p><strong>Email:</strong> {{ $('Webhook').item.json.body.email }}</p>     <p><strong>Phone:</strong> {{ $('Webhook').item.json.body.phone }}</p>     <p><strong>Service:</strong> {{ $('Webhook').item.json.body.service }}</p>     <p><strong>Message:</strong> {{ $('Webhook').item.json.body.message }}</p>   </div>    <p style=\"color:#27ae60;\">✅ Lead saved to Google Sheets automatically.</p>   <p>Reply within 24 hours for best conversion!</p>  </div>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        -304
+      ],
+      "id": "4f4fd5bf-6a62-4f61-946e-6ee8b1cfedde",
+      "name": "Send a message to me",
+      "webhookId": "bf73f6cd-322b-4104-9f1c-57f5e2800b8b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BchoZV8Iohh7fUXj",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message to client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message to client": {
+      "main": [
+        [
+          {
+            "node": "Send a message to me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message to me": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "872ab6cc-e935-40a1-999d-09f38a663195",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b17a698d2418e3d29074bfe03646c773e6b780d1ff851e026bcc2f589b000cbf"
+  },
+  "id": "DQxBVT4dJbNHjtuj",
+  "tags": []
+}
