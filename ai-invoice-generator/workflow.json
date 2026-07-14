@@ -1,0 +1,117 @@
+{
+  "name": "AI automated Invoice generation",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [{\"role\": \"user\", \"content\": \"{{ 'Generate a professional invoice in clean HTML format only. Use inline CSS for styling. Add a Print Invoice button that uses window.print() and add a print media query that hides the print button when printing so only the invoice prints. Details: From: XXX Company, Dhaka Bangladesh, Email: owner@example.com. Bill To: ' + $json.body.clientName + ', Email: ' + $json.body.clientEmail + '. Service: ' + $json.body.service + '. Amount: $' + $json.body.amount + '. Invoice Number: INV-' + new Date().getTime().toString().slice(-6) + '. Date: ' + new Date().toLocaleDateString() + '. Due: 30 days. Professional table layout. Return only pure HTML code. Do not include html or ``` tags. Start directly with <html>.' }}\"}]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1152,
+        -656
+      ],
+      "id": "496fc18e-acc7-4199-b089-9064a99334eb",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "AryQuCHDESoIrBgl",
+          "name": "Grok AUthorization"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "=invoice",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1392,
+        -704
+      ],
+      "id": "7a5ea987-3dfe-468f-8542-c3fd366ff279",
+      "name": "Webhook1",
+      "webhookId": "a5b99ad3-7895-4ce0-83ea-87b7d6e0e6a3"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook1').item.json.body.clientEmail }}",
+        "subject": "Your Invoice is Ready",
+        "message": "={{ $('HTTP Request').item.json.choices[0].message.content + '<p style=\"color:#666;font-size:12px;margin-top:20px;\">💡 To print only the invoice: Click the 3-dot menu (⋮) in Gmail → Print → Save as PDF</p>' }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -944,
+        -688
+      ],
+      "id": "d9a6b487-12bd-4986-b095-733041b428b5",
+      "name": "Send a message",
+      "webhookId": "2a156ab5-3d2f-4794-b772-1dcae4c6ed22",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BchoZV8Iohh7fUXj",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "9d2217d1-b686-420f-ab1d-9becccc5206d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b17a698d2418e3d29074bfe03646c773e6b780d1ff851e026bcc2f589b000cbf"
+  },
+  "id": "LSN06u8Zm995o5xO",
+  "tags": []
+}
